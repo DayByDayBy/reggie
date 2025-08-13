@@ -1,0 +1,27 @@
+{
+  "name": "kilo-regex-explainer",
+  "version": "1.0.0",
+  "description": "Improved Zsh Regex Explainer with concise explanations",
+  "type": "module",
+  "main": "explain.js",
+  "scripts": {
+    "test": "node tests/test.js && mocha tests/error-test.js"
+  },
+  "keywords": [
+    "regex",
+    "zsh",
+    "explain",
+    "pattern",
+    "shell",
+    "kilo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "regexp-tree": "^0.1.24"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
+  }
+}
