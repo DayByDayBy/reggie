@@ -19,6 +19,14 @@ detect_regex_pattern() {
 
 # explain_regex function
 explain_regex() {
+    # Check if Node.js is available
+    if ! command -v node >/dev/null 2>&1; then
+        echo "Error: Node.js is not installed or not in PATH"
+        echo "Please install Node.js from https://nodejs.org/"
+        echo "Or ensure it's available in your PATH"
+        return 1
+    fi
+
     local regex=""
 
     # If user provided a regex as an argument
@@ -59,8 +67,21 @@ explain_regex() {
         return 1
     fi
 
-    # Use dynamic path resolution to find explain.js in the same directory as this plugin
-    # Get the directory of the currently sourced file
-    local plugin_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")" && pwd)"
-    node "$plugin_dir/explain.js" "$regex"
+   # Get the directory of the currently sourced file with better Zsh compatibility
+   local plugin_dir="$(cd "$(dirname "${(%):-%x}")" && pwd)"
+   
+   # Validate that explain.js exists
+   if [[ ! -f "$plugin_dir/explain.js" ]]; then
+       echo "Error: explain.js not found in plugin directory: $plugin_dir"
+       echo "Please ensure the plugin is properly installed"
+       return 1
+   fi
+   
+   # Check if dependencies are installed
+   if [[ ! -d "$plugin_dir/node_modules" ]]; then
+       echo "Error: Node.js dependencies not installed"
+       echo "Please run: cd '$plugin_dir' && npm install"
+       return 1
+   fi
+   node "$plugin_dir/explain.js" "$regex"
 }

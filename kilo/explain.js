@@ -171,11 +171,19 @@ function explainNode(node) {
 }
 
 function explainRegex(input) {
-    if (!input) {
-        throw new Error('No regex pattern provided');
-    }
-
-    let pattern = input;
+        if (!input || input.trim() === '') {
+            throw new Error('No regex pattern provided');
+        }
+        
+        // Trim whitespace
+        input = input.trim();
+        
+        // Check for obviously invalid patterns
+        if (input.length > 1000) {
+            throw new Error('Regex pattern too long (max 1000 characters)');
+        }
+        
+        let pattern = input;
     let flags = '';
     
     if (input.startsWith('/')) {
@@ -228,7 +236,16 @@ function main() {
         console.log(explanation);
         
     } catch (error) {
-        console.error(`Error: ${error.message}`);
+        if (error.message.includes('Invalid regex pattern')) {
+            console.error(`Error: ${error.message}`);
+            console.error('\nCommon regex syntax issues:');
+            console.error('- Unmatched brackets: [abc vs [abc]');
+            console.error('- Unescaped special characters: use \\. for literal dot');
+            console.error('- Invalid quantifiers: {1,} needs closing brace');
+            console.error('\nTry testing your regex at https://regex101.com/');
+        } else {
+            console.error(`Error: ${error.message}`);
+        }
         process.exit(1);
     }
 }
