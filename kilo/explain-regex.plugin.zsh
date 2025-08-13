@@ -1,3 +1,22 @@
+# Enhanced regex detection function
+detect_regex_pattern() {
+    local input="$1"
+    local detected=""
+    
+    # Method 1: Check if input is already a delimited regex (/pattern/flags)
+    if [[ "$input" =~ ^/.*/.* ]]; then
+        detected="$input"
+    # Method 2: Check if input contains regex metacharacters (likely a raw pattern)
+    elif [[ "$input" =~ [\.\*\+\?\[\]\(\)\{\}\^\$\|\\] ]]; then
+        detected="$input"
+    # Method 3: Try to extract delimited regex from text
+    else
+        detected=$(echo "$input" | grep -oE '/[^/]+/[gimsuxy]*' | head -n 1)
+    fi
+    
+    echo "$detected"
+}
+
 # explain_regex function
 explain_regex() {
     local regex=""
@@ -8,16 +27,30 @@ explain_regex() {
     else
         # Try clipboard first
         if command -v pbpaste >/dev/null 2>&1; then
-            regex=$(pbpaste | grep -oE '/.*?/' | head -n 1)
+            clipboard_content=$(pbpaste)
+            regex=$(detect_regex_pattern "$clipboard_content")
         elif command -v xclip >/dev/null 2>&1; then
-            regex=$(xclip -o | grep -oE '/.*?/' | head -n 1)
+            clipboard_content=$(xclip -o)
+            regex=$(detect_regex_pattern "$clipboard_content")
         elif command -v xsel >/dev/null 2>&1; then
-            regex=$(xsel --clipboard | grep -oE '/.*?/' | head -n 1)
+            clipboard_content=$(xsel --clipboard)
+            regex=$(detect_regex_pattern "$clipboard_content")
         fi
 
         # Fallback to regex in last command
         if [[ -z "$regex" ]]; then
-            regex=$(fc -nl -1 | grep -oE '/.*?/' | head -n 1)
+            last_command=$(fc -nl -1)
+            regex=$(detect_regex_pattern "$last_command")
+        fi
+    fi
+
+    # Validate that we have a reasonable regex pattern
+    if [[ -n "$regex" ]]; then
+        # Basic validation - check for minimum regex indicators
+        if [[ ! "$regex" =~ [\.\*\+\?\[\]\(\)\{\}\^\$\|\\] ]] && [[ ! "$regex" =~ ^/.*/.*$ ]]; then
+            echo "Warning: '$regex' doesn't appear to be a regex pattern"
+            echo "Supported formats: /pattern/flags or raw pattern with metacharacters"
+            return 1
         fi
     fi
 
