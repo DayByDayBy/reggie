@@ -1,0 +1,12 @@
+for path:
+
+source ~/.zsh-plugins/explain-regex/explain-regex.plugin.zsh
+
+for usage:
+
+
+$ explain_regex '/[^A-Za-z0-9_.]/'
+any character except characters from "A" to "Z", characters from "a" to "z", characters from "0" to "9", "_", "."
+
+$ explain_regex '/\d+/'
+one or more of ("digit")

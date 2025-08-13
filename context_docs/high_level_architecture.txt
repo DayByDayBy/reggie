@@ -1,0 +1,13 @@
+explain-regex.plugin.zsh
+  |
+  v
+node explain.js <regex>
+  |
+  v
+parse to AST (regexp-tree)
+  |
+  v
+walk AST -> build plain English explanation
+  |
+  v
+print to stdout
