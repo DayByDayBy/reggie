@@ -5,7 +5,7 @@
   "type": "module",
   "main": "explain.js",
   "scripts": {
-    "test": "node explain.js"
+    "test": "node tests/test.js"
   },
   "keywords": [
     "regex",
