@@ -73,7 +73,7 @@ function explainNode(node) {
                     case '\\]': return 'a literal closing bracket';
                     case '\\{': return 'a literal opening brace';
                     case '\\}': return 'a literal closing brace';
-                    default: return `the literal character "${node.value.slice(1)}"`;
+                    default: return `the literal character "${node.value}"`;
                 }
             }
             return `the character "${node.value}"`;

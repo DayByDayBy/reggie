@@ -83,3 +83,8 @@
 - Core functionality verified
 - Ready for launch
 
+
+### Advanced Test Case Expansion - $(date)
+- Added new, more complex test cases to `kilo/tests/test.js` to ensure future robustness.
+- Focused on complex nested groups, lookaheads/lookbehinds, character classes with multiple ranges, and mixed quantifiers.
+- All 19 tests now pass, including the original 13 and 6 new advanced cases.

@@ -52,6 +52,30 @@ const testCases = {
     'Flags': {
         pattern: '/a/gi',
         expected: 'the character "a"\n\nFlags: case-insensitive, global (find all matches)'
+    },
+    'Complex Nested Group': {
+        pattern: '/(a(b|c)*)+/',
+        expected: 'capture group #1: the character "a" then capture group #2: either the character "b" or the character "c", zero or more times, one or more times'
+    },
+    'Lookbehind': {
+        pattern: '/(?<=a)b/',
+        expected: 'preceded by the character "a" then the character "b"'
+    },
+    'Negated Lookbehind': {
+        pattern: '/(?<!a)b/',
+        expected: 'not preceded by the character "a" then the character "b"'
+    },
+    'Character Class with Ranges': {
+        pattern: '/[a-zA-Z0-9_]/',
+        expected: 'any of: a–z, A–Z, 0–9, the character "_"'
+    },
+    'URL Matching': {
+        pattern: '/https?:\\/\\/[^\\s/$.?#].[^\\s]*/',
+        expected: '"http", then the character "s" optionally, then the character ":", then the literal character "/", then the literal character "/", then any character except: whitespace, the character "/", the character "$", the character ".", the character "?", the character "#", then any character then any character except: whitespace, zero or more times'
+    },
+    'Mixed Quantifiers': {
+        pattern: '/a.*?b+c{2,}/',
+        expected: 'the character "a", then any character, zero or more times (non-greedy), then the character "b", one or more times then the character "c", 2 or more times'
     }
 };
 
