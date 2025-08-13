@@ -1,0 +1,9 @@
+{
+  "name": "explain-regex",
+  "version": "1.0.0",
+  "description": "Explain regex patterns in plain English for Zsh",
+  "type": "module",
+  "dependencies": {
+    "regexp-tree": "^0.1.24"
+  }
+}

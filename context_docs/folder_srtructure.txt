@@ -1,0 +1,4 @@
+~/.zsh-plugins/explain-regex/
+  explain-regex.plugin.zsh   # Zsh wrapper
+  explain.js                 # Node.js explainer
+  package.json               # Node dependencies

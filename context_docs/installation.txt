@@ -1,0 +1,12 @@
+# Make plugin folder
+mkdir -p ~/.zsh-plugins/explain-regex
+cd ~/.zsh-plugins/explain-regex
+
+# Save the three files there
+npm init -y
+npm install regexp-tree
+chmod +x explain.js
+
+# Enable in your ~/.zshrc
+echo "source ~/.zsh-plugins/explain-regex/explain-regex.plugin.zsh" >> ~/.zshrc
+source ~/.zshrc

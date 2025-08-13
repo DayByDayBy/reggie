@@ -1,55 +1,89 @@
 #!/usr/bin/env node
-const {parse} = require('regexp-tree');
+const { parse } = require('regexp-tree');
 
 function explainNode(node) {
     switch (node.type) {
         case 'Character':
+            if (node.kind === 'meta') {
+                if (node.symbol === '\\d') return 'a digit (0–9)';
+                if (node.symbol === '\\w') return 'a letter, digit, or underscore';
+                if (node.symbol === '\\s') return 'a whitespace character (space, tab, etc.)';
+                if (node.symbol === '.') return 'any character';
+            }
             return `"${node.symbol}"`;
+
         case 'CharacterClass':
-            return node.expressions.map(explainNode).join(', ');
+            const inside = node.expressions.map(explainNode).join(', ');
+            return node.negative
+                ? `any single character except ${inside}`
+                : `any of: ${inside}`;
+
         case 'ClassRange':
-            return `characters from "${node.from.symbol}" to "${node.to.symbol}"`;
-        case 'CharacterClassRange':
-            return `characters from "${node.from.symbol}" to "${node.to.symbol}"`;
+            return `a character from "${node.from.symbol}" to "${node.to.symbol}"`;
+
         case 'Repetition':
-            let quant = '';
-            if (node.quantifier.kind === '+') quant = 'one or more';
-            else if (node.quantifier.kind === '*') quant = 'zero or more';
-            else if (node.quantifier.kind === '?') quant = 'zero or one';
-            else quant = `${node.quantifier.from} to ${node.quantifier.to} times`;
-            return `${quant} of (${explainNode(node.expression)})`;
+            const { kind, from, to } = node.quantifier;
+            let quantifierText = '';
+            if (kind === '+') quantifierText = 'one or more times';
+            else if (kind === '*') quantifierText = 'zero or more times';
+            else if (kind === '?') quantifierText = 'zero or one time';
+            else if (from === to) quantifierText = `${from} times`;
+            else quantifierText = `${from} to ${to} times`;
+            return `${explainNode(node.expression)} ${quantifierText}`;
+
         case 'Alternative':
-            return node.expressions.map(explainNode).join(', then ');
+            return node.expressions.map(explainNode).join(' then ');
+
         case 'Disjunction':
-            return node.left && node.right
-                ? `${explainNode(node.left)} or ${explainNode(node.right)}`
-                : '';
+            return `${explainNode(node.left)} or ${explainNode(node.right)}`;
+
         case 'Assertion':
-            if (node.kind === '^') return 'start of string';
-            if (node.kind === '$') return 'end of string';
-            if (node.kind === '\\b') return 'word boundary';
-            return `assertion ${node.kind}`;
+            if (node.kind === '^') return 'the start of the string';
+            if (node.kind === '$') return 'the end of the string';
+            if (node.kind === '\\b') return 'a word boundary';
+            if (node.kind === '\\B') return 'a non-word boundary';
+            return `an assertion (${node.kind})`;
+
         case 'Group':
-            return `group: (${explainNode(node.expression)})`;
+            return `(${explainNode(node.expression)})`;
+
         case 'RegExp':
             return explainNode(node.body);
+
         default:
-            return node.raw || '(unknown)';
+            return node.raw || '(something)';
     }
 }
 
-const input = process.argv[2];
-let pattern = input;
+function explainRegex(input) {
+    let flags = '';
+    if (input.startsWith('/') && input.lastIndexOf('/') > 0) {
+        flags = input.slice(input.lastIndexOf('/') + 1);
+        input = input.slice(1, input.lastIndexOf('/'));
+    }
+    const ast = parse(`/${input}/${flags}`);
+    let explanation = explainNode(ast);
 
-// Strip /.../ if present
-if (pattern.startsWith('/') && pattern.lastIndexOf('/') > 0) {
-    pattern = pattern.slice(1, pattern.lastIndexOf('/'));
+    if (flags) {
+        const flagDescriptions = [];
+        if (flags.includes('i')) flagDescriptions.push('case-insensitive');
+        if (flags.includes('g')) flagDescriptions.push('global (find all matches)');
+        if (flags.includes('m')) flagDescriptions.push('multi-line mode');
+        if (flags.includes('s')) flagDescriptions.push('dot matches newline');
+        if (flagDescriptions.length) {
+            explanation += `. Flags: ${flagDescriptions.join(', ')}`;
+        }
+    }
+
+    return explanation;
 }
 
 try {
-    const ast = parse(`/${pattern}/`);
-    console.log(explainNode(ast));
-} catch (e) {
-    console.error(`Error parsing regex: ${e.message}`);
+    const input = process.argv[2];
+    console.log(explainRegex(input));
+} catch (err) {
+    console.error(`Error: ${err.message}`);
     process.exit(1);
 }
+ 
+//  script explains a regular expression in human-readable terms.
