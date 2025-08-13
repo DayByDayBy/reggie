@@ -27,5 +27,7 @@ explain_regex() {
     fi
 
     # Use dynamic path resolution to find explain.js in the same directory as this plugin
-    node "$(dirname "${(%):-%x}")"/explain.js "$regex"
+    # Get the directory of the currently sourced file
+    local plugin_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")" && pwd)"
+    node "$plugin_dir/explain.js" "$regex"
 }
