@@ -1,6 +1,7 @@
 - Started Zsh Regex Explainer project implementation using context documents as reference
 - Setting up project directory structure at ~/.zsh-plugins/explain-regex/
 - Created project directory and package.json file
+- Fixed validation logic to only apply to auto-detected patterns, not user arguments
 - Installed npm dependencies (regexp-tree)
 - Implementing explain.js - the core regex AST parser and explainer
 - Created and tested explain.js - core functionality working

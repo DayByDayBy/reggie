@@ -42,15 +42,15 @@ explain_regex() {
             last_command=$(fc -nl -1)
             regex=$(detect_regex_pattern "$last_command")
         fi
-    fi
-
-    # Validate that we have a reasonable regex pattern
-    if [[ -n "$regex" ]]; then
-        # Basic validation - check for minimum regex indicators
-        if [[ ! "$regex" =~ [\.\*\+\?\[\]\(\)\{\}\^\$\|\\] ]] && [[ ! "$regex" =~ ^/.*/.*$ ]]; then
-            echo "Warning: '$regex' doesn't appear to be a regex pattern"
-            echo "Supported formats: /pattern/flags or raw pattern with metacharacters"
-            return 1
+        
+        # Validate auto-detected patterns (but not user-provided arguments)
+        if [[ -n "$regex" ]]; then
+            # Basic validation - check for minimum regex indicators
+            if [[ ! "$regex" =~ [\.\*\+\?\[\]\(\)\{\}\^\$\|\\] ]] && [[ ! "$regex" =~ ^/.*/.*$ ]]; then
+                echo "Warning: '$regex' doesn't appear to be a regex pattern"
+                echo "Supported formats: /pattern/flags or raw pattern with metacharacters"
+                return 1
+            fi
         fi
     fi
 
