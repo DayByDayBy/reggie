@@ -26,6 +26,17 @@ explain_regex() {
         echo "Or ensure it's available in your PATH"
         return 1
     fi
+# Detect environment for better error messages
+    local os_type=""
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        os_type="macOS"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        os_type="Linux"
+    elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+        os_type="Windows"
+    else
+        os_type="Unknown"
+    fi
 
     local regex=""
 
@@ -34,14 +45,23 @@ explain_regex() {
         regex="$1"
     else
         # Try clipboard first
+        # Try clipboard with better error handling
+        local clipboard_content=""
         if command -v pbpaste >/dev/null 2>&1; then
-            clipboard_content=$(pbpaste)
-            regex=$(detect_regex_pattern "$clipboard_content")
+            # macOS
+            clipboard_content=$(pbpaste 2>/dev/null || echo "")
         elif command -v xclip >/dev/null 2>&1; then
-            clipboard_content=$(xclip -o)
-            regex=$(detect_regex_pattern "$clipboard_content")
+            # Linux with xclip
+            clipboard_content=$(xclip -selection clipboard -o 2>/dev/null || echo "")
         elif command -v xsel >/dev/null 2>&1; then
-            clipboard_content=$(xsel --clipboard)
+            # Linux with xsel
+            clipboard_content=$(xsel --clipboard --output 2>/dev/null || echo "")
+        elif command -v powershell.exe >/dev/null 2>&1; then
+            # Windows/WSL
+            clipboard_content=$(powershell.exe -command "Get-Clipboard" 2>/dev/null | tr -d '\r' || echo "")
+        fi
+
+        if [[ -n "$clipboard_content" ]]; then
             regex=$(detect_regex_pattern "$clipboard_content")
         fi
 
@@ -68,6 +88,7 @@ explain_regex() {
     fi
 
    # Get the directory of the currently sourced file with better Zsh compatibility
+   # Use Zsh-compatible path resolution
    local plugin_dir="$(cd "$(dirname "${(%):-%x}")" && pwd)"
    
    # Validate that explain.js exists
