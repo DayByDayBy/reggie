@@ -52,10 +52,37 @@ fi
 echo ""
 echo "🎉 Installation completed successfully!"
 echo ""
+# Add sourcing of bash script to user's shell configuration
+echo "🔧 Adding bash script to your shell configuration..."
+
+# Determine which shell configuration file to use
+if [[ -f "$HOME/.bashrc" ]]; then
+    CONFIG_FILE="$HOME/.bashrc"
+elif [[ -f "$HOME/.bash_profile" ]]; then
+    CONFIG_FILE="$HOME/.bash_profile"
+else
+    CONFIG_FILE="$HOME/.bashrc"
+    touch "$CONFIG_FILE"
+    echo "Created $CONFIG_FILE"
+fi
+
+# Add source line to config file if not already present
+SCRIPT_PATH="$(pwd)/explain-regex.bash"
+SOURCE_LINE="source $SCRIPT_PATH"
+
+if ! grep -qF "$SOURCE_LINE" "$CONFIG_FILE"; then
+    echo "$SOURCE_LINE" >> "$CONFIG_FILE"
+    echo "✅ Added bash script to $CONFIG_FILE"
+else
+    echo "⚠️  Bash script already in $CONFIG_FILE"
+fi
+
+echo ""
 echo "To use the plugin:"
-echo "1. Add this directory to your Zsh plugin manager, or"
-echo "2. Source the plugin file directly:"
+echo "1. For Zsh: Add this directory to your Zsh plugin manager, or source the plugin file directly:"
 echo "   source $(pwd)/explain-regex.plugin.zsh"
+echo "2. For Bash: The explain-regex.bash script has been added to your shell configuration."
+echo "   Restart your terminal or run: source $SCRIPT_PATH"
 echo ""
 echo "Then use: explain_regex [pattern]"
 echo "Example: explain_regex '/\\d+/'"
