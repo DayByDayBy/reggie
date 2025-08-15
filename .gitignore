@@ -1,2 +1,5 @@
-kilo/node_modules/
-basher/node_modules/
+
+kilo/node_modules
+gemnini_alt/explain-regex/node_modules
+basher/node_modules
+
